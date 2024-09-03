@@ -1,5 +1,6 @@
 package com.dev.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
@@ -10,12 +11,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+// import lombok.Getter;
+// import lombok.Setter;
 
 @Entity
-@Setter
-@Getter
+@Data
 @Table(name = "role_taken")
 public class RolesTaken {
     @Id
@@ -31,6 +32,7 @@ public class RolesTaken {
 
     @ManyToOne
     @JoinColumn(name = "meeting_details_id")
+    @JsonIgnore   //use to avoid circular loop or infinite cycle
     private MeetingDetails meetingDetails;
 
     @JsonProperty("isAvailableRole")

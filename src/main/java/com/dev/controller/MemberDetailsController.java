@@ -3,6 +3,7 @@ package com.dev.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,11 +13,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dev.dtoClasses.MemberDTO;
 import com.dev.entity.MemberDetails;
 import com.dev.service.impl.MemberDetailsServiceImpl;
 
 @RestController
+// @CorsOrigin("*")
+
 @RequestMapping("/api/user")
+@CrossOrigin(origins = "http://localhost:5173")
 public class MemberDetailsController {
 
     private MemberDetailsServiceImpl memberDetailsService;
@@ -27,9 +32,14 @@ public class MemberDetailsController {
     }
 
 
-    @PostMapping("/saveMember")
-    public ResponseEntity<MemberDetails> saveMemberDetails(@RequestBody MemberDetails memberDetails){
-        return memberDetailsService.saveMemberDetails(memberDetails);
+    // @PostMapping()
+    // public ResponseEntity<MemberDetails> saveMemberDetails(@RequestBody MemberDetails memberDetails){
+    //     return memberDetailsService.saveMemberDetails(memberDetails);
+    // }
+
+    @PostMapping()
+    public ResponseEntity<MemberDTO> saveMemberDetails(@RequestBody MemberDTO memberDTO){
+        return memberDetailsService.saveMemberDetails(memberDTO);
     }
 
     @GetMapping()

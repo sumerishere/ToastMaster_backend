@@ -1,5 +1,6 @@
 package com.dev.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -10,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.dev.dtoClasses.MemberDTO;
 import com.dev.entity.MemberDetails;
+import com.dev.entity.MemberShip;
 import com.dev.exception.InvalidEmailAddressException;
 import com.dev.exception.InvalidPhoneNumberException;
 import com.dev.exception.MemberDetailsNotFoundException;
@@ -26,21 +29,52 @@ public class MemberDetailsServiceImpl implements MemberDetailsService,Validation
     MemberDetailsRepository memberDetailsRepository;
 
     @Override
-    public ResponseEntity<MemberDetails> saveMemberDetails(MemberDetails memberDetails) {
+    public ResponseEntity<MemberDetails> saveMemberDetails(MemberDTO memberDTO) {
 
-        if(memberDetails!=null){
-            if(!(phoneNumberValid(memberDetails.getPhoneNumber()))){
+        if(memberDTO != null) {
+            // Validate phone number and email
+            if (!phoneNumberValid(memberDTO.getPhoneNumber())) {
                 throw new InvalidPhoneNumberException("Invalid Phone Number");
             }
-
-            if(!(emailValidate(memberDetails.getEmailAddress()))){
+            if (!emailValidate(memberDTO.getEmailAddress())) {
                 throw new InvalidEmailAddressException("Invalid Email Address");
             }
-        }
+            
+            // Convert DTO to MemberDetails entity
+            MemberDetails memberDetails = new MemberDetails();
+            memberDetails.setId(memberDTO.getId());
+            memberDetails.setFirstName(memberDTO.getFirstName());
+            memberDetails.setLastName(memberDTO.getLastName());
+            memberDetails.setAddress(memberDTO.getAddress());
+            memberDetails.setPhoneNumber(memberDTO.getPhoneNumber());
+            memberDetails.setEmailAddress(memberDTO.getEmailAddress());
+            memberDetails.setProfession(memberDTO.getProfession());
+            memberDetails.setDateOfBirth(memberDTO.getDateOfBirth());
+            memberDetails.setDateTime(LocalDateTime.now());
 
-       return new ResponseEntity<>(memberDetailsRepository.save(memberDetails),HttpStatus.CREATED);
+            // Save MemberDetails
+            memberDetails = memberDetailsRepository.save(memberDetails);
+
+            // Handle Membership if provided
+            if (memberDTO.getFees() > 0) {
+                MemberShip membership = new MemberShip();
+                membership.setId(memberDTO.getMembershipId());
+                membership.setFees(memberDTO.getFees());
+                membership.setStartDate(memberDTO.getStartDate());
+                membership.setEndDate(memberDTO.getEndDate());
+                membership.setIsActive(memberDTO.getIsActive());
+                membership.setMemberDetails(memberDetails);
+
+                // Save Membership
+                memberShipRepository.save(membership);
+            }
+
+          return new ResponseEntity<>(memberDetails, HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
+    
     @Override
     public List<MemberDetails> getAllMemberDetails() {
         return memberDetailsRepository.findAll();
