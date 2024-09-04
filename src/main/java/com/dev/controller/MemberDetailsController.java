@@ -2,6 +2,7 @@ package com.dev.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,8 +39,13 @@ public class MemberDetailsController {
     // }
 
     @PostMapping()
-    public ResponseEntity<MemberDTO> saveMemberDetails(@RequestBody MemberDTO memberDTO){
-        return memberDetailsService.saveMemberDetails(memberDTO);
+    public ResponseEntity<MemberDTO> saveMemberDetails(@RequestBody MemberDTO memberDTO) {
+        try {
+            ResponseEntity<MemberDTO> response = memberDetailsService.saveMemberDetails(memberDTO);
+            return response;
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping()

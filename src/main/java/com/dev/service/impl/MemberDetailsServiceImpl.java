@@ -19,8 +19,7 @@ import com.dev.exception.InvalidPhoneNumberException;
 import com.dev.exception.MemberDetailsNotFoundException;
 import com.dev.repository.MemberDetailsRepository;
 import com.dev.service.MemberDetailsService;
-
-import main.java.com.dev.validations.ValidationCheck;
+import com.dev.validations.ValidationCheck;
 
 @Service
 public class MemberDetailsServiceImpl implements MemberDetailsService,ValidationCheck {
@@ -28,10 +27,11 @@ public class MemberDetailsServiceImpl implements MemberDetailsService,Validation
     @Autowired
     MemberDetailsRepository memberDetailsRepository;
 
+    
     @Override
-    public ResponseEntity<MemberDetails> saveMemberDetails(MemberDTO memberDTO) {
+    public ResponseEntity<MemberDTO> saveMemberDetails(MemberDTO memberDTO) {
 
-        if(memberDTO != null) {
+        if (memberDTO != null) {
             // Validate phone number and email
             if (!phoneNumberValid(memberDTO.getPhoneNumber())) {
                 throw new InvalidPhoneNumberException("Invalid Phone Number");
@@ -39,10 +39,9 @@ public class MemberDetailsServiceImpl implements MemberDetailsService,Validation
             if (!emailValidate(memberDTO.getEmailAddress())) {
                 throw new InvalidEmailAddressException("Invalid Email Address");
             }
-            
-            // Convert DTO to MemberDetails entity
+
+            // Create and save MemberDetails entity
             MemberDetails memberDetails = new MemberDetails();
-            memberDetails.setId(memberDTO.getId());
             memberDetails.setFirstName(memberDTO.getFirstName());
             memberDetails.setLastName(memberDTO.getLastName());
             memberDetails.setAddress(memberDTO.getAddress());
@@ -51,29 +50,33 @@ public class MemberDetailsServiceImpl implements MemberDetailsService,Validation
             memberDetails.setProfession(memberDTO.getProfession());
             memberDetails.setDateOfBirth(memberDTO.getDateOfBirth());
             memberDetails.setDateTime(LocalDateTime.now());
+            
+            System.out.println("Saving MemberShip...");
 
-            // Save MemberDetails
-            memberDetails = memberDetailsRepository.save(memberDetails);
-
-            // Handle Membership if provided
-            if (memberDTO.getFees() > 0) {
+            // Create and save MemberShip entity
+            if (memberDTO.getFees() > 0 && memberDTO.getStartDate() != null && memberDTO.getEndDate() != null) {
                 MemberShip membership = new MemberShip();
-                membership.setId(memberDTO.getMembershipId());
                 membership.setFees(memberDTO.getFees());
                 membership.setStartDate(memberDTO.getStartDate());
                 membership.setEndDate(memberDTO.getEndDate());
                 membership.setIsActive(memberDTO.getIsActive());
-                membership.setMemberDetails(memberDetails);
+                membership.setMemberDetails(memberDetails);  // Link the membership with memberDetails
 
-                // Save Membership
                 memberShipRepository.save(membership);
+                System.out.println("MemberShip saved with ID: " + membership.getId());
+
+                // Populate membership details back into the DTO
+                memberDTO.setMembershipId(membership.getId());
             }
 
-          return new ResponseEntity<>(memberDetails, HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
+            // Set the member ID to the DTO for the response
+            memberDTO.setId(memberDetails.getId());
 
+            return new ResponseEntity<>(memberDTO, HttpStatus.CREATED);
+        }
+        
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }   
     
     @Override
     public List<MemberDetails> getAllMemberDetails() {

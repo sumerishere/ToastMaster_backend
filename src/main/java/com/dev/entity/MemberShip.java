@@ -2,7 +2,6 @@ package com.dev.entity;
 
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,9 +31,14 @@ public class MemberShip {
 
     private Boolean isActive;
 
+    // @OneToOne
+    //@JoinColumn(name="member_details_id")
+    //private MemberDetails memberDetails;
+
+    // Bidirectional One-to-One relationship
     @OneToOne
-    @JoinColumn(name="member_details_id")
-    private MemberDetails memberDetails;
+    @JoinColumn(name="member_details_id", referencedColumnName = "id",cascade)
+    private MemberDetails memberDetails; // Ensure this is correctly set up
 
     
 }

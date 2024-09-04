@@ -32,7 +32,7 @@ public class RolesTaken {
 
     @ManyToOne
     @JoinColumn(name = "meeting_details_id")
-    @JsonIgnore   //use to avoid circular loop or infinite cycle
+    // @JsonIgnore   //use to avoid circular loop or infinite cycle
     private MeetingDetails meetingDetails;
 
     @JsonProperty("isAvailableRole")

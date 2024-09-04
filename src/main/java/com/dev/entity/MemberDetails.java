@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -42,4 +43,9 @@ public class MemberDetails {
 
     @Column(name="club_joining_date")
     private LocalDateTime dateTime;
+
+
+     // Bidirectional One-to-One relationship
+    @OneToOne(mappedBy = "memberDetails", cascade = CascadeType.ALL)
+    private MemberShip membership; // Add this field
 }
